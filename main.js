@@ -2,15 +2,10 @@ const STORAGE_KEY = "escala-psar-workspace-v2";
 const ACTIVE_SESSION_KEY = "escala-psar-session-v1";
 const DEFAULT_ACCOUNTS = [];
 const FIREBASE_NAMESPACE = "escalaPSARApp";
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBR0io-r_snZTWy1pe8A0dsb4awBpANDxs",
-  authDomain: "escala-pnae.firebaseapp.com",
-  databaseURL: "https://escala-pnae-default-rtdb.firebaseio.com",
-  projectId: "escala-pnae",
-  storageBucket: "escala-pnae.firebasestorage.app",
-  messagingSenderId: "289230851590",
-  appId: "1:289230851590:web:a638d6c6a8409d65803d87",
-};
+// ATENÇÃO: As credenciais do Firebase foram removidas do repositório por segurança.
+// Para rodar localmente, crie um arquivo config.js (adicione ao .gitignore) com suas credenciais:
+// Veja o exemplo em config.example.js
+// eslint-disable-next-line no-unused-vars
 
 const SHIFT_OPTIONS = {
   "6h": [

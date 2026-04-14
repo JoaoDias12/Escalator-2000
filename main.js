@@ -14,8 +14,9 @@ const SHIFT_OPTIONS = {
     { value: "H3", label: "H3 17:30-23:30" },
   ],
   "4h": [
-    { value: "4A", label: "H4 18:30-22:30" },
-    { value: "4B", label: "H5 19:30-23:30" },
+      { value: "4A", label: "H4 16:15-20:15" },
+      { value: "4B", label: "H5 18:30-22:30" },
+      { value: "4C", label: "H6 19:30-23:30" },
   ],
 };
 
@@ -29,8 +30,9 @@ const STATUS_LABELS = {
   H1: "H1 16:15-22:15",
   H2: "H2 16:45-22:45",
   H3: "H3 17:30-23:30",
-  "4A": "H4 18:30-22:30",
-  "4B": "H5 19:30-23:30",
+  "4A": "H4 16:15-20:15",
+  "4B": "H5 18:30-22:30",
+  "4C": "H6 19:30-23:30",
 };
 
 const workspace = loadWorkspace();
@@ -62,6 +64,7 @@ function cacheDom() {
   dom.needH3 = document.getElementById("needH3");
   dom.need4A = document.getElementById("need4A");
   dom.need4B = document.getElementById("need4B");
+  dom.need4C = document.getElementById("need4C");
   dom.generateBtn = document.getElementById("generateBtn");
   dom.clearManualBtn = document.getElementById("clearManualBtn");
   dom.employeeForm = document.getElementById("employeeForm");
@@ -91,13 +94,13 @@ function createEmptySchedule(name = "Escala principal") {
   return {
     id: crypto.randomUUID(),
     name,
-    settings: { month: fallbackMonth, needH1: 3, needH2: 0, needH3: 1, need4A: 2, need4B: 1 },
+    settings: { month: fallbackMonth, needH1: 3, needH2: 0, needH3: 1, need4A: 2, need4B: 1, need4C: 0 },
     employees: [],
     occurrences: [],
     manualOverrides: {},
     lastGenerated: null,
     updatedAt: new Date().toISOString(),
-  };
+    };
 }
 
 function normalizeSchedule(rawSchedule, fallbackName = "Escala principal") {
@@ -182,6 +185,7 @@ function hydrateControls() {
   dom.needH3.value = state.settings.needH3;
   dom.need4A.value = state.settings.need4A;
   dom.need4B.value = state.settings.need4B;
+  dom.need4C.value = state.settings.need4C;
 }
 
 function bindEvents() {
@@ -201,7 +205,7 @@ function bindEvents() {
   });
 
   dom.monthInput.addEventListener("change", syncSettingsFromInputs);
-  [dom.needH1, dom.needH2, dom.needH3, dom.need4A, dom.need4B].forEach((input) =>
+  [dom.needH1, dom.needH2, dom.needH3, dom.need4A, dom.need4B, dom.need4C].forEach((input) =>
     input.addEventListener("change", syncSettingsFromInputs)
   );
 
@@ -222,6 +226,7 @@ function bindEvents() {
         H3: Number(formData.get("prefH3")) || 0,
         "4A": Number(formData.get("prefH4")) || 0,
         "4B": Number(formData.get("prefH5")) || 0,
+        "4C": Number(formData.get("prefH6")) || 0,
       },
     });
     dom.employeeForm.reset();
@@ -267,6 +272,8 @@ function syncSettingsFromInputs() {
   state.settings.needH3 = Number(dom.needH3.value);
   state.settings.need4A = Number(dom.need4A.value);
   state.settings.need4B = Number(dom.need4B.value);
+  state.settings.need4C = Number(dom.need4C.value);
+  saveState();
   saveState();
 }
 
@@ -686,7 +693,7 @@ function renderScheduleTable(result) {
       const isAlert = coverage.missing.length > 0;
       const assignedPeople = state.employees
         .map((employee) => ({ employee, value: result.schedule[date][employee.id] }))
-        .filter((item) => ["H1", "H2", "H3", "4A", "4B"].includes(item.value))
+        .filter((item) => ["H1", "H2", "H3", "4A", "4B", "4C"].includes(item.value))
         .slice(0, 4);
 
       const peoplePreview = assignedPeople
@@ -696,7 +703,7 @@ function renderScheduleTable(result) {
         )
         .join("");
       const moreCount =
-        Object.values(result.schedule[date]).filter((value) => ["H1", "H2", "H3", "4A", "4B"].includes(value)).length -
+        Object.values(result.schedule[date]).filter((value) => ["H1", "H2", "H3", "4A", "4B", "4C"].includes(value)).length -
         assignedPeople.length;
 
       return `
@@ -711,7 +718,7 @@ function renderScheduleTable(result) {
             </div>
             <div class="calendar-coverage">
               <div class="calendar-coverage-line"><strong>6h</strong> H1 ${coverage.counts.H1} · H2 ${coverage.counts.H2} · H3 ${coverage.counts.H3}</div>
-              <div class="calendar-coverage-line"><strong>4h</strong> H4 ${coverage.counts["4A"]} · H5 ${coverage.counts["4B"]}</div>
+              <div class="calendar-coverage-line"><strong>4h</strong> H4 ${coverage.counts["4A"]} · H5 ${coverage.counts["4B"]} · H6 ${coverage.counts["4C"]}</div>
             </div>
             <div class="calendar-people-preview">
               ${peoplePreview || `<div class="calendar-person-chip more">Nenhuma pessoa alocada</div>`}
@@ -786,8 +793,9 @@ function renderPrintSchedule(result) {
           <span><strong>H1</strong> 16:15-22:15</span>
           <span><strong>H2</strong> 16:45-22:45</span>
           <span><strong>H3</strong> 17:30-23:30</span>
-          <span><strong>H4</strong> 18:30-22:30</span>
-          <span><strong>H5</strong> 19:30-23:30</span>
+          <span><strong>H4</strong> 16:15-20:15</span>
+          <span><strong>H5</strong> 18:30-22:30</span>
+          <span><strong>H6</strong> 19:30-23:30</span>
           <span><strong>F</strong> Folga</span>
           <span><strong>FC</strong> Folga compensa</span>
           <span><strong>V</strong> Férias</span>
@@ -894,7 +902,7 @@ function buildSchedule(appState) {
   const stats = {};
 
   appState.employees.forEach((employee) => {
-    stats[employee.id] = { total: 0, H1: 0, H2: 0, H3: 0, "4A": 0, "4B": 0 };
+    stats[employee.id] = { total: 0, H1: 0, H2: 0, H3: 0, "4A": 0, "4B": 0, "4C": 0 };
   });
 
   for (const date of dates) {
@@ -922,7 +930,7 @@ function buildSchedule(appState) {
     assignMandatoryShift(finalSchedule[date], autoSchedule[date], available6h, "H1", appState.settings.needH1, stats, missing, date);
     assignMandatoryShift(finalSchedule[date], autoSchedule[date], available6h, "H3", appState.settings.needH3, stats, missing, date);
 
-    assignPreferred4hMix(finalSchedule[date], autoSchedule[date], available4h, stats);
+    assignPreferred4hMix(finalSchedule[date], autoSchedule[date], available4h, stats, appState.settings);
     assignRemaining6hMix(finalSchedule[date], autoSchedule[date], available6h, stats);
 
     applyManualFinalOverrides(appState, date, finalSchedule[date]);
@@ -956,7 +964,7 @@ function applyManualPreAssignments(appState, date, finalDay, pool6h, pool4h, sta
     finalDay[employee.id] = manualValue;
     removeFromPool(employee.workload === "6h" ? pool6h : pool4h, employee.id);
 
-    if (["H1", "H2", "H3", "4A", "4B"].includes(manualValue)) {
+    if (["H1", "H2", "H3", "4A", "4B", "4C"].includes(manualValue)) {
       stats[employee.id].total += 1;
       stats[employee.id][manualValue] += 1;
     }
@@ -998,20 +1006,27 @@ function assignMandatoryShift(finalDay, autoDay, pool, shift, count, stats, miss
   }
 }
 
-function assignPreferred4hMix(finalDay, autoDay, pool, stats) {
+function assignPreferred4hMix(finalDay, autoDay, pool, stats, settings) {
   if (!pool.length) return;
 
+  // Distribuir H5 (4B) e H6 (4C) conforme necessidade mínima
   const hasH5Manual = Object.values(finalDay).includes("4B");
-  if (!hasH5Manual) {
+  const hasH6Manual = Object.values(finalDay).includes("4C");
+  if (!hasH5Manual && (settings.need4B > 0)) {
     const firstH5 = pickWeightedCandidate(pool, "4B", stats, 1.15);
     if (firstH5) assignShiftToEmployee(finalDay, autoDay, firstH5, "4B", stats, pool);
   }
+  if (!hasH6Manual && (settings.need4C > 0)) {
+    const firstH6 = pickWeightedCandidate(pool, "4C", stats, 1.15);
+    if (firstH6) assignShiftToEmployee(finalDay, autoDay, firstH6, "4C", stats, pool);
+  }
 
   while (pool.length) {
-    const shift = chooseShiftForEmployee(pool[0], ["4A", "4B"], stats, { defaultShift: "4A", randomness: 0.45 });
+    // Considerar todos os turnos 4h
+    const shift = chooseShiftForEmployee(pool[0], ["4A", "4B", "4C"], stats, { defaultShift: "4A", randomness: 0.45 });
     const candidate = pickWeightedCandidate(pool, shift, stats);
     if (!candidate) break;
-    const chosenShift = chooseShiftForEmployee(candidate, ["4A", "4B"], stats, { defaultShift: "4A", randomness: 0.45 });
+    const chosenShift = chooseShiftForEmployee(candidate, ["4A", "4B", "4C"], stats, { defaultShift: "4A", randomness: 0.45 });
     assignShiftToEmployee(finalDay, autoDay, candidate, chosenShift, stats, pool);
   }
 }
@@ -1077,7 +1092,7 @@ function removeFromPool(pool, employeeId) {
 }
 
 function summarizeCoverage(daySchedule, settings) {
-  const counts = { H1: 0, H2: 0, H3: 0, "4A": 0, "4B": 0 };
+  const counts = { H1: 0, H2: 0, H3: 0, "4A": 0, "4B": 0, "4C": 0 };
   Object.values(daySchedule).forEach((value) => {
     if (counts[value] !== undefined) counts[value] += 1;
   });
@@ -1095,7 +1110,7 @@ function summarizeCoverage(daySchedule, settings) {
 }
 
 function buildCoverageSummary(counts) {
-  return ["H1", counts.H1, "H2", counts.H2, "H3", counts.H3, "H4", counts["4A"], "H5", counts["4B"]].join(" ");
+  return ["H1", counts.H1, "H2", counts.H2, "H3", counts.H3, "H4", counts["4A"], "H5", counts["4B"], "H6", counts["4C"]].join(" ");
 }
 
 function indexOccurrences(occurrences) {
@@ -1194,7 +1209,7 @@ function getWeekdayIndex(isoDate) {
 }
 
 function isWorkShift(value) {
-  return ["H1", "H2", "H3", "4A", "4B"].includes(value);
+  return ["H1", "H2", "H3", "4A", "4B", "4C"].includes(value);
 }
 
 function getCompactLabel(value) {
@@ -1204,6 +1219,7 @@ function getCompactLabel(value) {
     H3: "H3",
     "4A": "H4",
     "4B": "H5",
+    "4C": "H6",
     OFF: "F",
     ferias: "V",
     atestado: "DM",
@@ -1246,7 +1262,7 @@ function renderPreferenceSummary(employee) {
 }
 
 function renderPreferenceEditor(employee) {
-  const preferences = employee.preferences || { H1: 0, H2: 0, H3: 0, "4A": 0, "4B": 0 };
+  const preferences = employee.preferences || { H1: 0, H2: 0, H3: 0, "4A": 0, "4B": 0, "4C": 0 };
   const fields =
     employee.workload === "6h"
       ? [
@@ -1257,6 +1273,7 @@ function renderPreferenceEditor(employee) {
       : [
           ["4A", "H4"],
           ["4B", "H5"],
+          ["4C", "H6"],
         ];
 
   return fields

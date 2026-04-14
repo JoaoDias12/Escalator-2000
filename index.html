@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Escalator 2000</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="loginScreen" class="login-screen">
+      <div class="login-card">
+        <div class="login-copy">
+          <p class="eyebrow">Acesso autorizado</p>
+          <h2>Entrar no gerenciador de escalas</h2>
+          <p>Use um usuário liberado por você para acessar as escalas salvas e criar novas.</p>
+        </div>
+        <form id="loginForm" class="login-form">
+          <label>
+            <span>Usuário</span>
+            <input id="loginUsername" type="text" autocomplete="username" required />
+          </label>
+          <label>
+            <span>Senha</span>
+            <input id="loginPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit" class="primary">Entrar</button>
+          <div id="loginFeedback" class="login-feedback"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="appShell" class="app-shell" hidden>
+      <aside class="sidebar">
+        <div class="sidebar-edge">
+          <span class="sidebar-caret">&gt;</span>
+        </div>
+        <div class="sidebar-brand">
+          <p class="eyebrow">Escalas</p>
+          <h2>2000</h2>
+        </div>
+
+        <section class="sidebar-card">
+          <button id="logoutBtn" class="logout-red sidebar-btn" type="button">Sair</button>
+        </section>
+        
+
+        <section class="sidebar-card">
+          <div class="sidebar-card-head">
+            <strong>Escalas criadas</strong>
+          </div>
+          <div id="scheduleList" class="schedule-list"></div>
+          <form id="newScheduleForm" class="new-schedule-form">
+            <label>
+              <span>Nova escala</span>
+              <input id="newScheduleName" type="text" placeholder="Ex.: Escala Maio 2026" required />
+            </label>
+            <button type="submit" class="secondary sidebar-btn">Criar escala</button>
+          </form>
+        </section>
+
+        
+      </aside>
+
+      <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Escala mensal PSAR</p>
+          <h1>Monte, ajuste e revise a escala em poucos cliques</h1>
+          <p class="hero-copy">
+            Cadastre a equipe, informe a data-base das folgas, registre férias,
+            atestados ou folgas compensadas e depois ajuste os horários direto
+            na grade mensal.
+          </p>
+        </div>
+        <div class="hero-card">
+          <strong>Regras padrão</strong>
+          <ul>
+            <li>Folga alternando entre 1 e 2 dias</li>
+            <li>Suporte para equipe 6h e 4h</li>
+            <li>Edição manual por pessoa e por dia</li>
+            <li>Alertas quando faltar cobertura</li>
+          </ul>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel panel-config">
+          <div class="panel-header">
+            <h2>1. Configuração do mês</h2>
+            <p>Defina o período e a cobertura mínima por horário.</p>
+          </div>
+
+          <div class="grid two-cols">
+            <label>
+              <span>Mês</span>
+              <input id="monthInput" type="month" />
+            </label>
+            <label>
+              <span>Total padrão H1 6h</span>
+              <input id="needH1" type="number" min="0" value="3" />
+            </label>
+            <label>
+              <span>Total padrão H2 6h</span>
+              <input id="needH2" type="number" min="0" value="0" />
+            </label>
+            <label>
+              <span>Total padrão H3 6h</span>
+              <input id="needH3" type="number" min="0" value="1" />
+            </label>
+            <label>
+              <span>Total padrão 4h 18:30</span>
+              <input id="need4A" type="number" min="0" value="2" />
+            </label>
+            <label>
+              <span>Total padrão 4h 19:30</span>
+              <input id="need4B" type="number" min="0" value="1" />
+            </label>
+          </div>
+
+          <div class="toolbar">
+            <button id="generateBtn" class="primary">Gerar escala</button>
+            <button id="clearManualBtn" class="ghost">Limpar ajustes manuais</button>
+          </div>
+        </section>
+
+        <section class="panel panel-team-form">
+          <div class="panel-header">
+            <h2>2. Cadastro da equipe</h2>
+            <p>Adicione, edite ou remova pessoas quando precisar.</p>
+          </div>
+
+          <form id="employeeForm" class="grid employee-form">
+            <label>
+              <span>Matrícula</span>
+              <input name="registration" type="text" required />
+            </label>
+            <label>
+              <span>Nome</span>
+              <input name="name" type="text" required />
+            </label>
+            <label>
+              <span>Carga horária</span>
+              <select name="workload">
+                <option value="6h">6h</option>
+                <option value="4h">4h</option>
+              </select>
+            </label>
+            <label>
+              <span>Padrão</span>
+              <select name="cycle">
+                <option value="6x1">6x1 / 6x2</option>
+              </select>
+            </label>
+            <label>
+              <span>Data-base da folga</span>
+              <input name="offDate" type="date" required />
+            </label>
+            <label>
+              <span>Próxima folga</span>
+              <select name="firstOffLength">
+                <option value="1">1 dia</option>
+                <option value="2">2 dias</option>
+              </select>
+            </label>
+            <div class="preference-box">
+              <span class="preference-title">Preferência por turno (%)</span>
+              <div class="preference-grid preference-grid-6h">
+                <label>
+                  <span>H1</span>
+                  <input name="prefH1" type="number" min="0" max="100" value="0" />
+                </label>
+                <label>
+                  <span>H2</span>
+                  <input name="prefH2" type="number" min="0" max="100" value="0" />
+                </label>
+                <label>
+                  <span>H3</span>
+                  <input name="prefH3" type="number" min="0" max="100" value="0" />
+                </label>
+                <label>
+                  <span>H4</span>
+                  <input name="prefH4" type="number" min="0" max="100" value="0" />
+                </label>
+                <label>
+                  <span>H5</span>
+                  <input name="prefH5" type="number" min="0" max="100" value="0" />
+                </label>
+              </div>
+            </div>
+            <button type="submit" class="secondary">Adicionar pessoa</button>
+          </form>
+        </section>
+
+        <section class="panel panel-team-list">
+          <div class="panel-header">
+            <h2>4. Equipe cadastrada e cópia</h2>
+            <p>Revise a equipe cadastrada e copie a escala do mês entre pessoas compatíveis.</p>
+          </div>
+          <div class="table-wrap">
+            <table class="people-table">
+              <thead>
+                <tr>
+                  <th>Matrícula</th>
+                  <th>Nome</th>
+                  <th>Carga</th>
+                  <th>Data-base</th>
+                  <th>Próxima folga</th>
+                  <th>Preferências</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="employeeTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="copy-box">
+            <div class="copy-box-header">
+              <h3>Copiar escala do mês</h3>
+              <p>Copia os turnos do mês selecionado de uma pessoa para outra como ajuste manual.</p>
+            </div>
+            <div class="copy-grid">
+              <label>
+                <span>Copiar de</span>
+                <select id="copySource"></select>
+              </label>
+              <label>
+                <span>Colar em</span>
+                <select id="copyTarget"></select>
+              </label>
+              <button id="copyScheduleBtn" type="button" class="secondary">Copiar escala</button>
+            </div>
+            <div id="copyFeedback" class="copy-feedback"></div>
+          </div>
+        </section>
+
+        <section class="panel panel-occurrences">
+          <div class="panel-header">
+            <h2>3. Ocorrências do mês</h2>
+            <p>Férias, atestado, folga compensada ou bloqueio pontual.</p>
+          </div>
+
+          <form id="occurrenceForm" class="grid occurrence-form">
+            <label>
+              <span>Pessoa</span>
+              <select id="occEmployee" name="employeeId"></select>
+            </label>
+            <label>
+              <span>Data</span>
+              <input name="date" type="date" required />
+            </label>
+            <label>
+              <span>Tipo</span>
+              <select name="type">
+                <option value="ferias">Férias</option>
+                <option value="atestado">Atestado</option>
+                <option value="compensa">Folga compensa</option>
+                <option value="bloqueio">Indisponível</option>
+              </select>
+            </label>
+            <button type="submit" class="secondary">Adicionar ocorrência</button>
+          </form>
+
+          <div id="occurrenceList" class="chips"></div>
+        </section>
+
+        <section class="panel panel-wide panel-schedule">
+          <div class="panel-header">
+            <h2>5. Grade mensal</h2>
+            <p>
+              Cada célula pode ser alterada. Se quiser voltar ao cálculo
+              automático, escolha a opção "Auto".
+            </p>
+          </div>
+
+          <div class="toolbar schedule-actions">
+            <button id="exportPdfBtn" class="secondary">Exportar PDF</button>
+            <button id="generateBtn" class="primary">Gerar escala</button>
+          </div>
+          <div id="scheduleMeta" class="schedule-meta"></div>
+          <div id="scheduleGrid" class="schedule-grid"></div>
+          <div id="printSchedule" class="print-schedule"></div>
+          <div id="warningBox" class="warning-box"></div>
+        </section>
+      </main>
+      </div>
+    </div>
+
+    <div id="dayModal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="modal-kicker">Ajuste manual</p>
+            <h3 id="modalTitle">Dia</h3>
+          </div>
+          <button id="closeModalBtn" class="ghost modal-close" type="button">Fechar</button>
+        </div>
+        <div id="modalSummary" class="modal-summary"></div>
+        <div id="modalPeopleList" class="modal-people"></div>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
